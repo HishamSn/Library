@@ -1,41 +1,23 @@
-import java.io.Serializable;
+import org.w3c.dom.Element;
 
-public class Book implements Serializable {
-	private static final long serialVersionUID = 1L;
+public class Book {
 
-	String name = null;
-	String author = null;
+    private String name;
+    private String author;
 
-	public Book() {
-		super();
-	}
 
-	public Book(String name, String author) {
-		super();
+    Book(Element element) {
+        super();
+        name = getTagValue("name", element);
+        author = getTagValue("author", element);
+    }
 
-		this.name = name;
-		this.author = author;
-	}
+    @Override
+    public String toString() {
+        return "book [name=" + name + ", author=" + author + "]";
+    }
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-
-	@Override
-	public String toString() {
-		return "Book [name=" + name + ", author=" + author + "]";
-	}
-
+    private static String getTagValue(String tag, Element element) {
+        return element.getElementsByTagName(tag).item(0).getTextContent();
+    }
 }

@@ -11,55 +11,54 @@ public class Client {
         try {
             Scanner scn = new Scanner(System.in);
 
-            // getting localhost ip
             InetAddress ip = InetAddress.getByName("localhost");
+            Socket socket = new Socket(ip, 5056);
 
-            // establish the connection with server port 5056
-            Socket s = new Socket(ip, 5056);
+            DataInputStream receivedStream = new DataInputStream(socket.getInputStream());
+            DataOutputStream sendStream = new DataOutputStream(socket.getOutputStream());
 
-            // obtaining input and out streams
-            DataInputStream dis = new DataInputStream(s.getInputStream());
-            DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            boolean loop = true;
 
-            // the following loop performs the exchange of information between client and
-            // client handler
-            while (true) {
-                System.out.println(dis.readUTF());
-                String tosend = scn.nextLine();
-                dos.writeUTF(tosend);
-                if (tosend.equals("1")) {
-                    System.out.println("please insert book name :");
-                    String searchKeywork=scn.nextLine();
-                    dos.writeUTF(searchKeywork);
+            while (loop) {
+                System.out.println("\n\n*****************************************************************************" +
+                        "\nWhat do you want? " +
+                        "\n\t1 to Fetch Book " +
+                        "\n\t2 to Fetch All Books" +
+                        "\n\t(exit) to close client side " +
+                        "\n\nEnter your choose.");
 
+                String type = scn.nextLine();
+                sendStream.writeUTF(type);
+
+                switch (type.toLowerCase()) {
+
+                    case "1": {
+                        System.out.println("\nPlease insert book name : ");
+                        sendStream.writeUTF(scn.nextLine());
+                        break;
+                    }
+                    case "exit": {
+                        loop = false;
+                        break;
+                    }
+                    default: {
+
+                        break;
+                    }
                 }
 
-                if(tosend.equals("3")){
-                    System.out.println(dis.readUTF());
-                    dos.writeUTF(scn.nextLine());
-
-                    System.out.println(dis.readUTF());
-                    dos.writeUTF(scn.nextLine());
+                if (loop) {
+                    System.out.println(receivedStream.readUTF());
                 }
-
-                if (tosend.equals("Exit")) {
-                    System.out.println("Closing this connection : " + s);
-                    s.close();
-                    System.out.println("Connection closed");
-                    break;
-                }
-
-                String received = dis.readUTF();
-                System.out.println(received);
-
             }
 
-            // closing resources
             scn.close();
-            dis.close();
-            dos.close();
+            receivedStream.close();
+            sendStream.close();
+            socket.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }

@@ -1,40 +1,31 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
 
-	public static void main(String[] args) throws IOException {
-		ServerSocket serverSocket = new ServerSocket(5056);
-		while (true) {
-			Socket s = null;
-			System.out.println("wait for connections");
+    public static void main(String[] args) throws IOException {
 
-			try {
-				// socket object to receive incoming client requests
-				s = serverSocket.accept();
+        ServerSocket serverSocket = new ServerSocket(5056);
+        File fXmlFile = new File("Library.xml");
 
-				System.out.println("A new client is connected : " + s);
+        while (true) {
+            Socket socket = null;
 
-				// obtaining input and out streams
-				DataInputStream dis = new DataInputStream(s.getInputStream());
-				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+            try {
+                socket = serverSocket.accept();
 
-				System.out.println("Assigning new thread for this client");
+                Thread t = new ClientHandler(socket, fXmlFile);
+                t.start();
 
-				// create a new thread object
-//				Scanner scanner = new Scanner(System.in);
-				Thread t = new ClientHandler(s, dis, dos);
-
-				// Invoking the start() method
-				t.start();
-
-			} catch (Exception e) {
-				s.close();
-				e.printStackTrace();
-			}
-		}
-	}
+            } catch (Exception e) {
+                if (socket != null) {
+                    socket.close();
+                }
+                e.printStackTrace();
+            }
+        }
+    }
 }
